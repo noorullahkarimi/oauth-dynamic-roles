@@ -20,20 +20,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private DataSource dataSource;
 
     @Autowired
-    public SecurityConfig(DataSource dataSource, UserService userService){
+    public SecurityConfig(DataSource dataSource, UserService userService) {
         this.dataSource = dataSource;
         this.userService = userService;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-       http.csrf().disable().
-               authorizeRequests()
-               .antMatchers("/", "/login","/logout").permitAll()
-               .antMatchers("/admin/").hasAnyAuthority("ADMIN")
-               .antMatchers("/user/").hasAnyAuthority("ADMIN", "USER")
-               .anyRequest().authenticated()
-               .and().formLogin().loginPage("/login").usernameParameter("email");
+        http.csrf().disable().
+            authorizeRequests()
+            .antMatchers("/", "/login", "/logout").permitAll()
+            .anyRequest().authenticated()
+            .and().formLogin().loginPage("/login").usernameParameter("email")
+            .successHandler(new LoginSuccessHandler())
+            .and().exceptionHandling().accessDeniedPage("/error")
+            .and().logout().logoutUrl("/mylogout");
     }
 
     @Override
@@ -42,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
 }

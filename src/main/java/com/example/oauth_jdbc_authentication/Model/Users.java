@@ -2,8 +2,10 @@ package com.example.oauth_jdbc_authentication.Model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import com.example.oauth_jdbc_authentication.enums.UserRoles;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +22,10 @@ public class Users implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Roles roles: roles)
+            authorities.addAll(roles.getAuthorities());
+        return authorities;
     }
 
     @Override
@@ -43,11 +48,12 @@ public class Users implements Serializable, UserDetails {
         return true;
     }
 
-    @ElementCollection(targetClass = UserRoles.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "email", referencedColumnName = "email"))
-    @Enumerated(EnumType.STRING)
-    private List<UserRoles> userRoles;
-
+    //    @ElementCollection(targetClass = UserRoles.class, fetch = FetchType.EAGER)
+//    @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "email", referencedColumnName = "email"))
+//    @Enumerated(EnumType.STRING)
+//    private List<UserRoles> userRoles;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Roles> roles;
 
     public Users() {}
 
@@ -66,20 +72,20 @@ public class Users implements Serializable, UserDetails {
                 '}';
     }
 
+    public List<Roles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Roles> roles) {
+        this.roles = roles;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public List<UserRoles> getUserRoles() {
-        return userRoles;
-    }
-
-    public void setUserRoles(List<UserRoles> userRoles) {
-        this.userRoles = userRoles;
     }
 
     public Long getId() {
