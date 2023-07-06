@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 
 @Controller
 public class UserController {
@@ -50,6 +51,11 @@ public class UserController {
             System.out.println(cookie.getName()+" : "+cookie.getValue());
         }
         return "cookie page";
+    }
+
+    @GetMapping("/info")
+    public @ResponseBody Principal info(Principal principal){
+        return principal;
     }
 
 }

@@ -2,16 +2,17 @@ package com.example.oauth_jdbc_authentication.Model;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import com.example.oauth_jdbc_authentication.Config.Oauth2UserService;
+import com.example.oauth_jdbc_authentication.enums.Authority;
 import com.example.oauth_jdbc_authentication.enums.UserRoles;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Entity
-public class Users implements Serializable, UserDetails {
+public class Users implements Serializable, UserDetails, OAuth2User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +22,24 @@ public class Users implements Serializable, UserDetails {
     private boolean enabled;
 
     @Override
+    public Map<String, Object> getAttributes() {
+        return new HashMap<>();
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (Roles roles: roles)
-            authorities.addAll(roles.getAuthorities());
+        if (roles != null && !roles.isEmpty()) {
+            for (Roles roles : roles)
+                authorities.addAll(roles.getAuthorities());
+        }else{
+            authorities.add(Authority.OP_USER);
+        }
         return authorities;
     }
 

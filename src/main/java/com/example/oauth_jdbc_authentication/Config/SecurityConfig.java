@@ -19,18 +19,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource dataSource;
 
+    private final Oauth2UserService oauth2UserService;
+
     @Autowired
-    public SecurityConfig(DataSource dataSource, UserService userService) {
+    public SecurityConfig(DataSource dataSource, UserService userService, Oauth2UserService oauth2UserService) {
         this.dataSource = dataSource;
         this.userService = userService;
+        this.oauth2UserService = oauth2UserService;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().
                 authorizeRequests()
-                .antMatchers("/", "/login", "/logout", "/getCookie").permitAll()
+                .antMatchers("/", "/login", "/logout", "/getCookie", "/info").permitAll()
                 .anyRequest().authenticated()
+                .and().oauth2Login().loginPage("/logingoogle")
+                .authorizationEndpoint().baseUri("/login/oauth2/").and()
+                .redirectionEndpoint().baseUri("/login/callback").and()
+                .userInfoEndpoint().userService(oauth2UserService).and()
+                .successHandler(new LoginSuccessHandler())
                 .and().formLogin().loginPage("/login").usernameParameter("email")
                 .successHandler(new LoginSuccessHandler())
                 .and().rememberMe().rememberMeCookieName("remember")
