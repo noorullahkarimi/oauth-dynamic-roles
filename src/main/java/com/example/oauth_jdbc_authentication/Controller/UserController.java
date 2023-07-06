@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class UserController {
 
@@ -38,6 +41,15 @@ public class UserController {
     @ResponseBody
     public String error(){
         return "error page";
+    }
+
+    @GetMapping("/getCookie")
+    @ResponseBody
+    public String getCookie(HttpServletRequest request){
+        for (Cookie cookie : request.getCookies()){
+            System.out.println(cookie.getName()+" : "+cookie.getValue());
+        }
+        return "cookie page";
     }
 
 }
